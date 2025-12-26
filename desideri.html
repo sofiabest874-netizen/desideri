@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vorrei</title>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background: white;
+        color: black;
+        font-family: Arial, sans-serif;
+        overflow: hidden;
+        touch-action: manipulation;
+    }
+
+    #start {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #inputWrap {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    #labelWrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #labelWrap label {
+        font-size: 12px;
+        margin-bottom: 6px;
+    }
+
+    #labelWrap input {
+        border: none;
+        border-bottom: 1px solid black;
+        outline: none;
+        font-size: 14px;
+        width: 180px;
+        text-align: center;
+        background: transparent;
+    }
+
+    /* PULSANTE FRECCIA */
+    #submitBtn {
+        width: 32px;
+        height: 32px;
+        background: black;
+        border-radius: 50%;
+        color: white;
+        font-size: 16px;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    #wall {
+        display: none;
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+    }
+
+    .wish {
+        position: absolute;
+        font-size: 8px;
+        opacity: 0.8;
+        white-space: nowrap;
+        pointer-events: none;
+    }
+
+    #hint {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: none;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #hint span {
+        font-size: 14px;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    #dot {
+        width: 14px;
+        height: 14px;
+        background: red;
+        border-radius: 50%;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+</style>
+</head>
+
+<body>
+
+<div id="start">
+    <div id="inputWrap">
+        <div id="labelWrap">
+            <label>vorrei</label>
+            <input type="text" id="wishInput" autocomplete="off" />
+        </div>
+        <div id="submitBtn">→</div>
+    </div>
+</div>
+
+<div id="wall"></div>
+
+<div id="hint">
+    <span> SCRIVI UN DESIDERIO →</span>
+    <div id="dot"></div>
+</div>
+
+<script>
+    const input = document.getElementById("wishInput");
+    const submitBtn = document.getElementById("submitBtn");
+    const start = document.getElementById("start");
+    const wall = document.getElementById("wall");
+    const hint = document.getElementById("hint");
+    const dot = document.getElementById("dot");
+
+    let wishes = JSON.parse(localStorage.getItem("wishes")) || [];
+
+    if (wishes.length > 0) {
+        showWall();
+        wishes.forEach(w => createWish(w.text, w.x, w.y));
+    }
+
+    // EVENTO UNIVERSALE (desktop + mobile)
+    submitBtn.addEventListener("pointerdown", submitWish);
+    dot.addEventListener("pointerdown", showStart);
+
+    function submitWish(e) {
+        e.preventDefault();
+        const text = input.value.trim();
+        if (!text) return;
+
+        addWish(text);
+        input.value = "";
+        input.blur(); // chiude tastiera
+        showWall();
+    }
+
+    function showWall() {
+        start.style.display = "none";
+        wall.style.display = "block";
+        hint.style.display = "flex";
+    }
+
+    function showStart() {
+        start.style.display = "flex";
+        wall.style.display = "none";
+        hint.style.display = "none";
+        setTimeout(() => input.focus(), 200);
+    }
+
+    function addWish(text) {
+        const x = Math.random() * (window.innerWidth - 50);
+        const y = Math.random() * (window.innerHeight - 20);
+
+        wishes.push({ text, x, y });
+        localStorage.setItem("wishes", JSON.stringify(wishes));
+
+        createWish(text, x, y);
+    }
+
+    function createWish(text, x, y) {
+        const wish = document.createElement("div");
+        wish.className = "wish";
+        wish.textContent = text;
+        wish.style.left = x + "px";
+        wish.style.top = y + "px";
+        wall.appendChild(wish);
+    }
+</script>
+
+</body>
+</html>
